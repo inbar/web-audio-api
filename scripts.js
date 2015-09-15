@@ -1,3 +1,9 @@
+var _audioContext;
+var _oscillator;
+var _gainNode;
+
+
+
 var SynthPad = (function() {
   // Variables
   var myCanvas;
@@ -48,6 +54,10 @@ var SynthPad = (function() {
   
   // Play a note.
   SynthPad.playSound = function(event) {
+    if (_oscillator) {
+      _oscillator.stop(0);
+    }
+
     oscillator = myAudioContext.createOscillator();
     gainNode = myAudioContext.createGain();
   
@@ -66,11 +76,12 @@ var SynthPad = (function() {
     myCanvas.addEventListener('mouseout', SynthPad.stopSound);
   };
   
-  
   // Stop the audio.
   SynthPad.stopSound = function(event) {
-    oscillator.stop(0);
-  
+    if (oscillator) {
+      oscillator.stop(0);
+    }
+      
     myCanvas.removeEventListener('mousemove', SynthPad.updateFrequency);
     myCanvas.removeEventListener('touchmove', SynthPad.updateFrequency);
     myCanvas.removeEventListener('mouseout', SynthPad.stopSound);
@@ -115,6 +126,10 @@ var SynthPad = (function() {
     }
   };
   
+  SynthPad.setParams = function(event) {
+  
+  };
+
   
   // Export SynthPad.
   return SynthPad;
@@ -124,4 +139,49 @@ var SynthPad = (function() {
 // Initialize the page.
 window.onload = function() {
   var synthPad = new SynthPad();
+  initOsc();
 }
+
+function initOsc() {
+  window.AudioContext = window.AudioContext || window.webkitAudioContext;
+  _audioContext = new window.AudioContext();
+}
+
+function play() {
+  if (_oscillator) {
+    _oscillator.stop(0);
+  }
+  _oscillator = _audioContext.createOscillator();
+  _gainNode = _audioContext.createGain();
+  _oscillator.type = 'triangle';
+  _gainNode.connect(_audioContext.destination);
+  _oscillator.connect(_gainNode);
+
+
+
+  var vol = document.getElementById("vol");
+  var freq = document.getElementById("freq");
+
+  volumeValue = parseInt(vol.value);
+  freqValue = parseInt(freq.value);
+
+  volumeValue = volumeValue / 1000;
+
+  if (volumeValue < 0) {
+    volumeValue = 0;
+  }
+
+  if (freqValue < 0) {
+    freqValue = 0;
+  }
+  console.log(volumeValue);
+  console.log(freqValue);
+
+
+  _gainNode.gain.value = volumeValue;
+  _oscillator.frequency.value = freqValue;
+
+
+  _oscillator.start(0);
+}
+
