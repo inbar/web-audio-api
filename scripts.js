@@ -165,8 +165,11 @@ function play() {
   volumeValue = parseInt(vol.value);
   freqValue = parseInt(freq.value);
 
-  volumeValue = volumeValue / 1000;
+  volumeValue = volumeValue * 0.01; // normalize to 0-1
 
+  if (volumeValue > 100) {
+    volumeValue = 100;
+  }
   if (volumeValue < 0) {
     volumeValue = 0;
   }
